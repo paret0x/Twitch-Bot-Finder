@@ -27,6 +27,8 @@ function CheckStreamForBots($StreamerName) {
 	$FoundBots = @()
 
 	$ViewerPattern = [regex]'"viewers":\[(.*)\]}}'
+	$CountSinceLastBot = 0
+	$SleepTime = 30
 
 	While ($DoLoop -eq 1) {
 		$Response = Invoke-WebRequest -URI $StreamerUrl
@@ -38,25 +40,36 @@ function CheckStreamForBots($StreamerName) {
 		
 		if ($Response -match $ViewerPattern) {
 			$ViewerList = $matches[1].Split(",")
-			$BotFound = $false
+			$NewBots = @()
 			
 			for ($index = 0; $index -lt $ViewerList.count; $index++) { 
 				$Viewer = $ViewerList[$index]
 				$Viewer = $Viewer.Trim('"', ' ')
 				
-				if ($BotList.Contains($Viewer) -and -not $FoundBots.Contains($Viewer)) {
-					Write-Host "Found new bot:" $Viewer
-					$FoundBots += $Viewer
-					$BotFound = $true
+				if ($global:BotList.Contains($Viewer) -and -not $FoundBots.Contains($Viewer)) {
+					$NewBots += $Viewer
 				}
 			}
 			
-			if (-not $BotFound) {
-				Write-Host "No bots found this round"
+			if ($NewBots.length -gt 0) {
+				$CountSinceLastBot = 1
+				
+				Write-Host ""
+				for ($index = 0; $index -lt $NewBots.count; $index++) {
+					$BotName = $NewBots[$index]
+					Write-Host "Found new bot: $BotName"
+					$FoundBots += $BotName
+				}
+			} else {
+				$NumSeconds = $SleepTime * $CountSinceLastBot
+				$MinuteCount = [int][Math]::Floor($NumSeconds / 60)
+				$SecondCount = $NumSeconds % 60
+				Write-Host -NoNewLine "`rNo new bots found in $MinuteCount minute(s) and $SecondCount seconds. " 
+				$CountSinceLastBot += 1
 			}
 		}
 			
-		Start-Sleep -Seconds 30
+		Start-Sleep -Seconds $SleepTime
 	}	
 }
 
