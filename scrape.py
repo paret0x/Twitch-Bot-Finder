@@ -22,7 +22,7 @@ with open("new.txt", 'r') as my_file:
         if not ('\t' in bot_name):
             continue
             
-        bot_name = bot_name[:bot_name.index('\t')].strip()
+        bot_name = bot_name[:bot_name.index('\t')].strip().lower()
         
         if not (bot_name in known_bots) and not (bot_name in whitelist) and not (bot_name in new_bots):
             new_bots.append(bot_name)

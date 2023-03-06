@@ -26,6 +26,6 @@ There's a pretty decent article about these "bots" from streamer Kyle Juffs [ove
 
 There's been a load of discussion about these "bots" on Reddit: [Post 1](https://www.reddit.com/r/Twitch/comments/srhhd8/any_way_to_get_rid_of_the_chat_bots_i_have_1/), [Post2](https://www.reddit.com/r/Twitch/comments/nlmiui/mass_banning_known_bot_accounts/), [Post 3](https://www.reddit.com/r/Twitch/comments/96sxsy/can_we_talk_about_bots_is_it_possible_to_start/)
 
-You can find a pretty comprehensive list of bots on [Twitch Insights](https://twitchinsights.net/bots) which is where most of the list this program uses came from.
+You can find a pretty comprehensive list of bots on [Twitch Insights](https://twitchinsights.net/bots) which is where most of the list this program uses came from. Another great list is [Stream Charts](https://streamscharts.com/tools/bots).
 
 If you want the bots automatically banned rather than having to do it manually, there's a [website](https://ban-twitch-bots.sirmre.com/) for that. That website uses the Twitch API for Authentication, so it should be (relatively?) safe to use without worrying about your password getting leaked.
