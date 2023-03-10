@@ -1,7 +1,8 @@
 
 $global:BotList = @()
+$global:FilePath = "botlist.txt"
 
-function GetBotList() {
+function GetBotListFromGithub() {
 	$BotListUrl = "https://raw.githubusercontent.com/paret0x/Twitch-Bot-Finder/main/botlist.txt"
 
 	$BotListResponse = Invoke-WebRequest -URI $BotListUrl
@@ -11,10 +12,20 @@ function GetBotList() {
 	}
 
 	$Bots = $BotListResponse.Content.Split([System.Environment]::NewLine)
-	Write-Host "Checking against list of" $Bots.length "bots"
+	Write-Host "Checking against list of" $Bots.length "bots from GitHub"
 	
 	for ($index = 0; $index -le $Bots.length; $index++) {
 		$Bot = $Bots[$index]
+		$global:BotList += $Bot
+	}
+}
+
+function GetBotListFromFile() {
+	$Lines = Get-Content -Path $global:FilePath
+	Write-Host "Checking against list of" $Lines.length "bots from File"
+	
+	for ($index = 0; $index -le $Lines.length; $index++) {
+		$Bot = $Lines[$index]
 		$global:BotList += $Bot
 	}
 }
@@ -73,6 +84,11 @@ function CheckStreamForBots($StreamerName) {
 	}	
 }
 
-GetBotList
+if (Test-Path -Path $global:FilePath -PathType Leaf) {
+	GetBotListFromFile
+} else {
+	GetBotListFromGithub	
+}
+
 $StreamerName = Read-Host "Enter twitch.tv username you want to monitor"
 CheckStreamForBots $StreamerName
