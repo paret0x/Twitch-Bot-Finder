@@ -29,6 +29,9 @@ with open("new.txt", 'r') as my_file:
         bot_mod_str = bot_fields[3].strip().replace(' ', '')
         bot_mod_count = int(bot_mod_str)
         
+        if len(bot_fields) < 5:
+            continue
+            
         if bot_mod_count > 10:
             if bot_name in known_bots:
                 known_bots.remove(bot_name)
