@@ -1,0 +1,33 @@
+{
+  "name": "Bot Finder",
+  "version": "1.0",
+  "manifest_version": 3,
+  "description": "Finds bots in a given twitch stream",
+
+  "icons": {
+    "48": "icon48.png"
+  },
+  
+  "permissions": [
+    "activeTab",
+	"scripting"
+  ],
+  
+  "host_permissions": [
+    "*://*.twitch.tv/*",
+	"*://github.com/*",
+	"*://raw.githubusercontent.com/*"
+  ],
+  
+  "background": {
+	  "scripts": ["inject.js"]
+  },
+  
+  "content_scripts": [
+    {
+      "matches": ["*://*.twitch.tv/*"],
+      "js": [],
+	  "css": ["botfinder.css"]
+    }
+  ]
+}

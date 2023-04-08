@@ -1,0 +1,39 @@
+.bot-finder-menu {
+	display: block;
+	border-radius: 4px;
+}
+
+.bot-finder-mod-view {	
+	background: Black;
+}
+
+.bot-finder-normal-view {
+	background: #181818;
+	padding-left: 2rem;
+	padding-top: 1rem;
+}
+
+.bot-finder-header {
+	font-weight: bold;
+	font-size: 16px;
+	margin-bottom: 2px;
+}
+
+.bot-finder-button {
+	background: white;
+	padding: 4px;
+	padding-left: 8px;
+	padding-right: 8px;
+	font-weight: bold;
+	border-radius: 5px;
+	font: inherit;
+	color: Black;
+	margin-bottom: 10px;
+	margin-right: 10px;
+}
+
+.viewer-bot {
+	background: Maroon;
+	border: 1px solid red;
+	padding: 2px;
+}
