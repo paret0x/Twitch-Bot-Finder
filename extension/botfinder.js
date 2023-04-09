@@ -110,7 +110,16 @@ function injectContextMenu() {
 	console.error("Failed to find viewer list");
 }
 
+function scriptAlreadyLoaded() {
+	return (document.getElementsByClassName("bot-finder-menu").length > 0);
+}
+
 function doBootLoop() {
+	if (scriptAlreadyLoaded()) {
+		console.log("Script already loaded");
+		return;
+	}
+	
 	if (getViewerLayout() == null) {
 		setTimeout(doBootLoop, 1000);
 	} else {
