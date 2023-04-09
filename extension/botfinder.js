@@ -36,7 +36,7 @@ async function getBots() {
 		localStorage.setItem("twitch_bot_finder_version", newVersion.toString());
 	} else {
 		console.log("Loading bots from storage");
-		bots = JSON.parse(storageResult);
+		bots = JSON.parse(currentKnownBots);
 	}
 	
 	botList.push(...bots);
