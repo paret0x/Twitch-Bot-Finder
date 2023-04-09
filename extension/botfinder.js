@@ -9,19 +9,36 @@ function setMenuText(message) {
 
 async function getBots() {
 	var bots = [];
-	var storageResult = localStorage.getItem("twitch_bot_finder_list");
-	if (storageResult == null) {
+
+	var currentVersion = localStorage.getItem("twitch_bot_finder_version");
+	if (currentVersion == null) {
+		currentVersion = 0;
+	} else {
+		currentVersion = parseInt(currentVersion);
+	}
+
+	var versionUrl = 'https://raw.githubusercontent.com/paret0x/Twitch-Bot-Finder/main/version.txt';		
+	var versionResponse = await fetch(versionUrl, {method: 'GET', mode: 'cors', headers: { "Accept": "text/plain" }});
+	var versionData = await versionResponse.text();
+	var newVersion = parseInt(versionData.split(":")[1]);
+
+	var currentKnownBots = localStorage.getItem("twitch_bot_finder_list");
+	
+	if ((currentKnownBots == null) || (currentVersion != newVersion)) {
 		console.log("Pulling bots from GitHub");
-		var url = 'https://raw.githubusercontent.com/paret0x/Twitch-Bot-Finder/main/botlist.txt';		
-		var response = await fetch(url, {method: 'GET', mode: 'cors', headers: { "Accept": "text/plain" }});
-		var data = await response.text();
-		bots = data.split("\n");
+
+		var botListUrl = 'https://raw.githubusercontent.com/paret0x/Twitch-Bot-Finder/main/botlist.txt';		
+		var botListResponse = await fetch(botListUrl, {method: 'GET', mode: 'cors', headers: { "Accept": "text/plain" }});
+		var botListData = await botListResponse.text();
+		bots = botListData.split("\n");
+
 		localStorage.setItem("twitch_bot_finder_list", JSON.stringify(bots));
+		localStorage.setItem("twitch_bot_finder_version", newVersion.toString());
 	} else {
 		console.log("Loading bots from storage");
 		bots = JSON.parse(storageResult);
 	}
-
+	
 	botList.push(...bots);
 	setMenuText("Loaded " + bots.length + " bots");
 }
