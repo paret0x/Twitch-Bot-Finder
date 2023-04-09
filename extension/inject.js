@@ -4,7 +4,6 @@ function injectScript(tabId) {
 }
 
 browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-	console.log(changeInfo);
 	if (changeInfo.url && changeInfo.url.includes("https://www.twitch.tv")) {
 		injectScript(tabId);			
 	}
