@@ -73,7 +73,7 @@ function highlightBots() {
 		}
 	}
 	
-	setMenuText("Found " + foundBotCount + " bots");
+	setMenuText("Found " + foundBotCount + " bot(s)");
 }
 
 function onButtonClick() {
