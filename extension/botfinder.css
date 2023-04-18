@@ -20,7 +20,7 @@
 }
 
 .bot-finder-button {
-	background: white;
+	background-color: white;
 	padding: 4px;
 	padding-left: 8px;
 	padding-right: 8px;
@@ -32,8 +32,18 @@
 	margin-right: 10px;
 }
 
-.viewer-bot {
-	background: Maroon;
-	border: 1px solid red;
-	padding: 2px;
+.bot-finder-button:hover {
+	background-color: whitesmoke;
 }
+
+.bot-finder-button:active {
+	background-color: lightgray;
+	transform: translateY(2px);
+}
+
+.viewer-bot {
+	border: 2px solid orangered;
+	padding: 2px 4px 2px 4px;
+	border-radius: 8px;
+}
+

@@ -4,7 +4,11 @@ var breakFromBootLoop = false;
 
 function setMenuText(message) {
 	var menuText = document.getElementById("bot-finder-text");
-	menuText.innerText = message;
+	if (menuText) {
+		menuText.innerText = message;
+	} else {
+		console.log("Menu text undefined");
+	}
 }
 
 async function getBots() {
@@ -44,8 +48,6 @@ async function getBots() {
 }
 
 function findViewers() {
-	setMenuText("Searching for bots");
-	
 	for (var index = 0; index < viewerList.length; index++) {
 		viewerList[index].classList.remove("viewer-bot");
 	}
@@ -73,12 +75,16 @@ function highlightBots() {
 		}
 	}
 	
-	setMenuText("Found " + foundBotCount + " bot(s)");
+	setMenuText("Highlighted " + foundBotCount + " bot(s)");
 }
 
 function onButtonClick() {
-	findViewers();
-	highlightBots();
+	setMenuText("Searching for bots");
+	
+	setTimeout(function() {
+		findViewers();
+		highlightBots();
+	}, 500);
 }
 
 function getViewerLayout() {
@@ -148,51 +154,62 @@ function injectContextMenu() {
 	console.error("Failed to find viewer list");
 }
 
-function doMainLoop() {
-	if (getViewerLayout() != null && getBotFinderMenu() == null) {
-		injectContextMenu();		
-	}
-
-	if (botList.length == 0) {
-		getBots();
-	}
-}
-
-function startMainLoop() {
-	setInterval(function() {
-		doMainLoop();
-	}, 2000);
-}
-
 function scriptAlreadyLoaded() {
 	return (getBotFinderMenu() != null);
 }
 
-function doBootLoop() {
+function onViewerPaneFound() {
 	if (scriptAlreadyLoaded()) {
 		console.log("Script already loaded");
-		breakFromBootLoop = true;
 		return;
 	}
 	
-	if (getViewerLayout() != null) {
-		console.log("Adding bot finder menu");
-		breakFromBootLoop = true;
-		startMainLoop();
+	if (getViewerLayout() == null) {
+		setTimeout(function() {
+			onViewerPaneFound();
+		}, 100);
+	} else {
+		if (botList.length == 0) {
+			getBots();
+		}
+		injectContextMenu();
 	}
 }
 
-function startBootLoop() {
-	bootLoopIntervalId = setInterval(function() {
-		if (breakFromBootLoop) {
-			clearInterval(bootLoopIntervalId);
-			bootLoopIntervalId = null;
-			return;
+function setupObserver() {
+	if (scriptAlreadyLoaded()) {
+		console.log("Script already loaded");
+		return;
+	}
+	
+	var mutationFunction = function(mutation) {
+		if (mutation.addedNodes && mutation.addedNodes.length > 0) {
+			for (var i = 0; i < mutation.addedNodes.length; i++) {
+				var element = mutation.addedNodes[i];
+				if (!element.className || !element.className.includes) {
+					continue;
+				}
+				
+				if (element.className.includes("chat-viewers__scroll-container") || element.className.includes("Layout-sc-1xcs6mc-0 byuQIf")) {
+					onViewerPaneFound();
+				}
+			}
 		}
-		
-		doBootLoop();
-	}, 1000);
+	};
+	
+	var observerFunction = function(mutations) {
+		mutations.forEach(mutationFunction);
+	};
+	
+	var observer = new MutationObserver(observerFunction);
+	
+	var observerConfig = {
+		childList: true,
+		subtree: true
+	};
+	
+	observer.observe(document.body, observerConfig);
 }
 
 console.log("Bot finder script injected");
-startBootLoop();
+setupObserver();
