@@ -4,7 +4,9 @@
 }
 
 .bot-finder-mod-view {	
-	background: Black;
+	background: inherit;
+	padding-left: 2rem;
+	padding-top: 1rem;
 }
 
 .bot-finder-normal-view {

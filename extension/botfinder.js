@@ -53,13 +53,12 @@ function findViewers() {
 	}
 	viewerList = [];
 	
-	var classNames = ["CoreText-sc-1txzju1-0 boA-dNo", "ScCoreLink-sc-16kq0mq-0 fHFCAz tw-link"];
+	var classNames = ["chatter-list-item--compact"];
 	for (var index = 0; index < classNames.length; index++) {
 		var list = document.getElementsByClassName(classNames[index]);
 		
-		if (list.length > 0) {
-			viewerList.push(...list);
-			return;
+		for (var chatter of list) {
+			viewerList.push(chatter.firstChild.firstChild);
 		}
 	}
 }
@@ -85,19 +84,6 @@ function onButtonClick() {
 		findViewers();
 		highlightBots();
 	}, 500);
-}
-
-function getViewerLayout() {
-	var classNames = ["Layout-sc-1xcs6mc-0 kRyZEP", "Layout-sc-1xcs6mc-0 dLmtZi"];
-	
-	for (var index = 0; index < classNames.length; index++) {
-		var layouts = document.getElementsByClassName(classNames[index]);
-		if (layouts.length > 0) {
-			return layouts[0];
-		}
-	}
-	
-	return null;
 }
 
 function getBotFinderMenu() {
@@ -133,21 +119,12 @@ function injectContextMenu() {
 	contextMenu.appendChild(contextMenuHeader);
 	contextMenu.appendChild(botButton);
 	contextMenu.appendChild(menuText);
-	
-	// Moderator view
-	var modLayout = document.getElementsByClassName("Layout-sc-1xcs6mc-0 kRyZEP");
-	if (modLayout.length > 0) {
+
+	// New moderator view
+	var modLayout = document.getElementById("community-tab-content");
+	if (modLayout != null) {
 		contextMenu.classList.add("bot-finder-mod-view");
-		modLayout[0].insertBefore(contextMenu, modLayout[0].firstChild);
-		return;
-	}
-	
-	// Regular view
-	var regularLayout = document.getElementsByClassName("Layout-sc-1xcs6mc-0 krdEPl");
-	if (regularLayout.length > 0) {
-		contextMenu.classList.add("bot-finder-normal-view");
-		var regularLayoutParent = regularLayout[0].parentElement;
-		regularLayoutParent.insertBefore(contextMenu, regularLayout[0]);
+		modLayout.insertBefore(contextMenu, modLayout.firstChild);
 		return;
 	}
 
@@ -164,52 +141,41 @@ function onViewerPaneFound() {
 		return;
 	}
 	
-	if (getViewerLayout() == null) {
-		setTimeout(function() {
-			onViewerPaneFound();
-		}, 100);
-	} else {
-		if (botList.length == 0) {
-			getBots();
-		}
-		injectContextMenu();
+	if (botList.length == 0) {
+		getBots();
 	}
+	injectContextMenu();
 }
 
-function setupObserver() {
+function waitForRemovedNode(id) {
+    new MutationObserver(function(mutations) {
+        var el = document.getElementById(id);
+        if (!el) {
+			this.disconnect();
+			waitForAddedNode(id);
+		}
+	}).observe(document.body, {subtree: false, childList: true});
+}
+
+function waitForAddedNode(id) {
+    new MutationObserver(function(mutations) {
+        var el = document.getElementById(id);
+        if (el) {
+			this.disconnect();
+			onViewerPaneFound();
+			waitForRemovedNode(id);
+		}
+	}).observe(document.body, {subtree: false, childList: true});
+}
+
+function setupObservers() {
 	if (scriptAlreadyLoaded()) {
 		console.log("Script already loaded");
 		return;
 	}
 	
-	var mutationFunction = function(mutation) {
-		if (mutation.addedNodes && mutation.addedNodes.length > 0) {
-			for (var i = 0; i < mutation.addedNodes.length; i++) {
-				var element = mutation.addedNodes[i];
-				if (!element.className || !element.className.includes) {
-					continue;
-				}
-				
-				if (element.className.includes("chat-viewers__scroll-container") || element.className.includes("Layout-sc-1xcs6mc-0 byuQIf")) {
-					onViewerPaneFound();
-				}
-			}
-		}
-	};
-	
-	var observerFunction = function(mutations) {
-		mutations.forEach(mutationFunction);
-	};
-	
-	var observer = new MutationObserver(observerFunction);
-	
-	var observerConfig = {
-		childList: true,
-		subtree: true
-	};
-	
-	observer.observe(document.body, observerConfig);
+	waitForAddedNode("community-tab-content");
 }
 
 console.log("Bot finder script injected");
-setupObserver();
+setupObservers();
