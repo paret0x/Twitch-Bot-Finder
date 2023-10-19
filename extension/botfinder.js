@@ -1,13 +1,12 @@
 var viewerList = [];
 var botList = [];
-var breakFromBootLoop = false;
 
 function setMenuText(message) {
 	var menuText = document.getElementById("bot-finder-text");
 	if (menuText) {
 		menuText.innerText = message;
 	} else {
-		console.log("Menu text undefined");
+		console.debug("Menu text undefined");
 	}
 }
 
@@ -29,7 +28,7 @@ async function getBots() {
 	var currentKnownBots = localStorage.getItem("twitch_bot_finder_list");
 	
 	if ((currentKnownBots == null) || (currentVersion != newVersion)) {
-		console.log("Pulling bots from GitHub");
+		console.debug("Pulling bots from GitHub");
 
 		var botListUrl = 'https://raw.githubusercontent.com/paret0x/Twitch-Bot-Finder/main/botlist.txt';		
 		var botListResponse = await fetch(botListUrl, {method: 'GET', mode: 'cors', headers: { "Accept": "text/plain" }});
@@ -39,12 +38,17 @@ async function getBots() {
 		localStorage.setItem("twitch_bot_finder_list", JSON.stringify(bots));
 		localStorage.setItem("twitch_bot_finder_version", newVersion.toString());
 	} else {
-		console.log("Loading bots from storage");
+		console.debug("Loading bots from storage");
 		bots = JSON.parse(currentKnownBots);
 	}
 	
 	botList.push(...bots);
 	setMenuText("Loaded " + bots.length + " bots");
+	
+	var bt = document.getElementById("bot-finder-button");
+	if (bt != null) {
+		bt.disabled = false;
+	}
 }
 
 function findViewers() {
@@ -53,7 +57,7 @@ function findViewers() {
 	}
 	viewerList = [];
 	
-	var classNames = ["chatter-list-item--compact"];
+	var classNames = ["chatter-list-item--compact", "chatter-list-item"];
 	for (var index = 0; index < classNames.length; index++) {
 		var list = document.getElementsByClassName(classNames[index]);
 		
@@ -61,6 +65,7 @@ function findViewers() {
 			viewerList.push(chatter.firstChild.firstChild);
 		}
 	}
+	console.debug("Found " + viewerList.length + " viewers");
 }
 
 function highlightBots() {
@@ -69,8 +74,12 @@ function highlightBots() {
 		var username = viewerList[index].innerHTML.toLowerCase();
 		
 		if (botList.includes(username)) {
+			console.debug("Found bot: " + username);
+
 			viewerList[index].classList.add("viewer-bot");
 			foundBotCount += 1;
+		} else {
+			console.debug("Viewer " + username + " is not a bot");
 		}
 	}
 	
@@ -104,6 +113,7 @@ function injectContextMenu() {
 	contextMenuHeader.innerText = "Bot Finder Menu";
 	
 	var botButton = document.createElement("button");
+	botButton.id = "bot-finder-button";
 	botButton.className = "bot-finder-button";
 	botButton.innerHTML = "Find Bots";
 	botButton.onclick = onButtonClick;
@@ -111,8 +121,10 @@ function injectContextMenu() {
 	var menuText = document.createElement("span");
 	if (botList.length > 0) {
 		menuText.innerText = "Loaded " + botList.length + " bots";
+		botButton.disabled = false;
 	} else {
 		menuText.innerText = "Loading bot list";
+		botButton.disabled = true;
 	}
 	menuText.id = "bot-finder-text";
 	
@@ -120,11 +132,10 @@ function injectContextMenu() {
 	contextMenu.appendChild(botButton);
 	contextMenu.appendChild(menuText);
 
-	// New moderator view
-	var modLayout = document.getElementById("community-tab-content");
-	if (modLayout != null) {
-		contextMenu.classList.add("bot-finder-mod-view");
-		modLayout.insertBefore(contextMenu, modLayout.firstChild);
+	var sidebar = document.getElementById("community-tab-content");
+	if (sidebar != null) {
+		contextMenu.classList.add("bot-finder-menu-view");
+		sidebar.insertBefore(contextMenu, sidebar.firstChild);
 		return;
 	}
 
@@ -137,7 +148,7 @@ function scriptAlreadyLoaded() {
 
 function onViewerPaneFound() {
 	if (scriptAlreadyLoaded()) {
-		console.log("Script already loaded");
+		console.debug("Script already loaded");
 		return;
 	}
 	
@@ -152,6 +163,7 @@ function waitForRemovedNode(id) {
         var el = document.getElementById(id);
         if (!el) {
 			this.disconnect();
+			console.debug("Sidebar destroyed, waiting to recreate");
 			waitForAddedNode(id);
 		}
 	}).observe(document.body, {subtree: false, childList: true});
@@ -162,6 +174,7 @@ function waitForAddedNode(id) {
         var el = document.getElementById(id);
         if (el) {
 			this.disconnect();
+			console.debug("Sidebar loaded/opened");
 			onViewerPaneFound();
 			waitForRemovedNode(id);
 		}
@@ -170,7 +183,7 @@ function waitForAddedNode(id) {
 
 function setupObservers() {
 	if (scriptAlreadyLoaded()) {
-		console.log("Script already loaded");
+		console.debug("Script already loaded");
 		return;
 	}
 	

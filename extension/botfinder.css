@@ -1,16 +1,7 @@
 .bot-finder-menu {
 	display: block;
 	border-radius: 4px;
-}
-
-.bot-finder-mod-view {	
 	background: inherit;
-	padding-left: 2rem;
-	padding-top: 1rem;
-}
-
-.bot-finder-normal-view {
-	background: #181818;
 	padding-left: 2rem;
 	padding-top: 1rem;
 }

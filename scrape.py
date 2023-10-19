@@ -3,19 +3,19 @@ whitelist = []
 new_bots = []
 new_good_bots = []
 
-with open("botlist.txt", 'r') as my_file:
+with open("botlist.txt", 'r', errors='replace') as my_file:
     lines = my_file.readlines()
     for line in lines:
         bot_name = line.strip("\n")
         known_bots.append(bot_name)
 
-with open("whitelist.txt", 'r') as my_file:
+with open("whitelist.txt", 'r', errors='replace') as my_file:
     lines = my_file.readlines()
     for line in lines:
         bot_name = line.strip("\n")
         whitelist.append(bot_name)
         
-with open("new.txt", 'r') as my_file:
+with open("new.txt", 'r', errors='replace') as my_file:
     lines = my_file.readlines()
     for line in lines:
         bot_name = line.strip("\n")
@@ -55,12 +55,12 @@ for bot in new_good_bots:
     whitelist.append(bot)
 whitelist.sort()
 
-with open("botlist.txt", 'w') as out_file:
+with open("botlist.txt", 'w', errors='replace') as out_file:
     for bot_name in known_bots:
         out_file.write("%s\n" % bot_name)
     out_file.close()
 
-with open("whitelist.txt", 'w') as out_file:
+with open("whitelist.txt", 'w', errors='replace') as out_file:
     for bot_name in whitelist:
         out_file.write("%s\n" % bot_name)
     out_file.close()
